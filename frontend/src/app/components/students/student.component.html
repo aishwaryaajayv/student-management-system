@@ -1,0 +1,81 @@
+
+<h2>Students</h2>
+
+<form #f="ngForm" (ngSubmit)="save()">
+  <input name="name" placeholder="Student name" [(ngModel)]="form.name" required>
+  <input name="email" type="email" placeholder="Email" [(ngModel)]="form.email" required email>
+
+
+
+    <div class="course-field" #courseBox>
+    <button type="button" class="course-toggle"
+        (click)="courseOpen = !courseOpen">
+        {{ courseIds.length ? courseIds.length + ' selected' : 'Select Courses' }}
+        <span>⌄</span>
+    </button>
+
+    @if (courseOpen) {
+        <div class="course-options">
+        @for (c of (courses.courses | async) ?? []; track c.id) {
+            @if (!courseIds.includes(c.id!)) {
+            <button type="button" class="course-option"
+                (click)="addCourse(c.id!)">
+                {{ c.name }}
+            </button>
+            }
+        }
+        @if (courseIds.length === ((courses.courses | async) ?? []).length) {
+            <p>No more courses</p>
+        }
+        </div>
+    }
+
+    <div class="course-tags">
+        @for (c of (courses.courses | async) ?? []; track c.id) {
+        @if (courseIds.includes(c.id!)) {
+            <button type="button" class="course-tag"
+            (click)="removeCourse(c.id!)">
+            {{ c.name }} <span>×</span>
+            </button>
+        }
+        }
+    </div>
+    </div>
+
+
+
+  <button [disabled]="f.invalid">{{ form.id ? 'Update' : 'Add' }} Student</button>
+  <button type="button" class="light" (click)="reset()">Clear</button>
+</form>
+
+@if (error || students.error || courses.error) {
+  <p class="error">{{ error || students.error || courses.error }}</p>
+}
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Courses</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (s of (students.students | async) ?? []; track s.id) {
+      <tr>
+        <td>{{ s.name }}</td>
+        <td>{{ s.email }}</td>
+        <td>{{ names(s) }}</td>
+        <td>
+          <button (click)="edit(s)">Edit</button>
+          <button class="danger" (click)="deleting = s.id!">Delete</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+@if (deleting !== null) {
+  <app-confirm message="Delete this student?" (answer)="remove($event)" />
+}

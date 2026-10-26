@@ -1,0 +1,36 @@
+
+<h2>Courses</h2>
+
+<form #f="ngForm" (ngSubmit)="save()">
+  <input name="name" placeholder="Course name" [(ngModel)]="form.name" required>
+  <button [disabled]="f.invalid">{{ form.id ? 'Update' : 'Add' }} Course</button>
+  <button type="button" class="light" (click)="reset()">Clear</button>
+</form>
+
+@if (error || courses.error) {
+  <p class="error">{{ error || courses.error }}</p>
+}
+
+<table>
+  <thead>
+    <tr>
+      <th>Course</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (c of (courses.courses | async) ?? []; track c.id) {
+      <tr>
+        <td>{{ c.name }}</td>
+        <td>
+          <button (click)="edit(c)">Edit</button>
+          <button class="danger" (click)="deleting = c.id!">Delete</button>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+@if (deleting !== null) {
+  <app-confirm message="Delete this course?" (answer)="remove($event)" />
+}
